@@ -13,25 +13,13 @@ class FavoritesScreen extends ConsumerWidget {
     final productsAsync = ref.watch(productProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Favoris'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
-            tooltip: 'Vider les favoris',
-            onPressed: () {
-              ref.read(favoritesProvider.notifier).clearFavorites();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Favoris vidés')),
-              );
-            },
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Favoris')),
       body: productsAsync.when(
         data: (products) {
-          final favProducts =
-          products.where((p) => favorites.contains(p.id)).toList();
+          // Filtrer les produits favoris
+          final favProducts = products
+              .where((p) => favorites.contains(p.id))
+              .toList();
 
           if (favProducts.isEmpty) {
             return const Center(child: Text('Aucun favori'));

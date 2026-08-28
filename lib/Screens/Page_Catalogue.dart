@@ -11,6 +11,7 @@ class CatalogScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final productsAsync = ref.watch(productProvider);
+    final sortOption = ref.watch(sortProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Catalogue')),
@@ -20,26 +21,18 @@ class CatalogScreen extends ConsumerWidget {
           Expanded(
             child: productsAsync.when(
               data: (products) {
-                final sortOption = ref.watch(sortProvider);
-                final categoryFilter = ref.watch(categoryFilterProvider);
-
-                // Filtrage par catégorie
-                final filteredProducts = products.where((p) {
-                  if (categoryFilter == null) return true;
-                  return p.category == categoryFilter;
-                }).toList();
-
-                // Tri par prix
+                // copie pour tri
+                final sortedProducts = [...products];
                 if (sortOption == SortOption.priceAsc) {
-                  filteredProducts.sort((a, b) => a.price.compareTo(b.price));
+                  sortedProducts.sort((a, b) => a.price.compareTo(b.price));
                 } else {
-                  filteredProducts.sort((a, b) => b.price.compareTo(a.price));
+                  sortedProducts.sort((a, b) => b.price.compareTo(a.price));
                 }
 
                 return ListView.builder(
-                  itemCount: filteredProducts.length,
+                  itemCount: sortedProducts.length,
                   itemBuilder: (context, index) =>
-                      ProductCard(product: filteredProducts[index]),
+                      ProductCard(product: sortedProducts[index]),
                 );
               },
               loading: () => const Center(child: CircularProgressIndicator()),

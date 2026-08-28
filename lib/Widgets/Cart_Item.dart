@@ -1,39 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../Models/Produit.dart';
+import '../Providers/Provider_Carte.dart';
 
-class CartItem extends StatelessWidget {
+class CartItem extends ConsumerWidget {
   final Product product;
   final int quantity;
-  final VoidCallback onIncrease;
-  final VoidCallback onDecrease;
-  final VoidCallback onRemove; // ✅ nouveau paramètre
-
-  const CartItem({
-    super.key,
-    required this.product,
-    required this.quantity,
-    required this.onIncrease,
-    required this.onDecrease,
-    required this.onRemove, // ✅ ajouté
-  });
+  const CartItem({super.key, required this.product, required this.quantity});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return ListTile(
-      leading: Image.network(product.imageUrl, width: 50, height: 50),
+      leading: Image.network(product.imageUrl),
       title: Text(product.name),
-      subtitle: Text('Prix: ${product.price} €'),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(icon: const Icon(Icons.remove), onPressed: onDecrease),
-          Text('$quantity'),
-          IconButton(icon: const Icon(Icons.add), onPressed: onIncrease),
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.red),
-            onPressed: onRemove,
-          ),
-        ],
+      subtitle: Text('Quantité: $quantity'),
+      trailing: IconButton(
+        icon: const Icon(Icons.remove_circle),
+        onPressed: () => ref.read(cartProvider.notifier).remove(product),
       ),
     );
   }

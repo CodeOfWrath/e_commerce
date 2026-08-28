@@ -3,21 +3,13 @@ class Product {
   final String name;
   final double price;
   final String imageUrl;
-  final String category; // nouveau champ
 
-  Product({
-    required this.id,
-    required this.name,
-    required this.price,
-    required this.imageUrl,
-    required this.category,
-  });
+  Product({required this.id, required this.name, required this.price, required this.imageUrl});
 
   factory Product.fromJson(Map<String, dynamic> json) => Product(
     id: json['id'],
     name: json['name'],
-    price: (json['price'] as num).toDouble(),
+    price: json['price'],
     imageUrl: json['imageUrl'],
-    category: json['category'],
   );
 }

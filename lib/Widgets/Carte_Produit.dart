@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../Models/Produit.dart';
 import '../Providers/Provider_Carte.dart';
 import '../Providers/Provider_Favorit.dart';
-import '../Screens/Page_Detail_Produit.dart';
+
 
 class ProductCard extends ConsumerStatefulWidget {
   final Product product;
@@ -14,8 +14,7 @@ class ProductCard extends ConsumerStatefulWidget {
   ConsumerState<ProductCard> createState() => _ProductCardState();
 }
 
-class _ProductCardState extends ConsumerState<ProductCard>
-    with SingleTickerProviderStateMixin {
+class _ProductCardState extends ConsumerState<ProductCard> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -48,30 +47,15 @@ class _ProductCardState extends ConsumerState<ProductCard>
 
     return Card(
       child: ListTile(
-        leading: Hero(
-          tag: widget.product.id, // identifiant unique pour l’animation
-          child: Image.network(widget.product.imageUrl, width: 60, height: 60),
-        ),
+        leading: Image.network(widget.product.imageUrl),
         title: Text(widget.product.name),
-        subtitle: Text(
-          '${widget.product.price} € • ${widget.product.category}',
-          style: const TextStyle(color: Colors.grey),
-        ),
+        subtitle: Text('${widget.product.price} €'),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: Icon(
-                favorites.contains(widget.product.id)
-                    ? Icons.favorite
-                    : Icons.favorite_border,
-                color: favorites.contains(widget.product.id)
-                    ? Colors.red
-                    : null,
-              ),
-              onPressed: () => ref
-                  .read(favoritesProvider.notifier)
-                  .toggleFavorite(widget.product),
+              icon: Icon(favorites.contains(widget.product.id) ? Icons.favorite : Icons.favorite_border),
+              onPressed: () => ref.read(favoritesProvider.notifier).toggleFavorite(widget.product),
             ),
             ScaleTransition(
               scale: _scaleAnimation,
@@ -82,8 +66,7 @@ class _ProductCardState extends ConsumerState<ProductCard>
                   _animateCart();
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content:
-                      Text('${widget.product.name} ajouté au panier'),
+                      content: Text('${widget.product.name} ajouté au panier'),
                       duration: const Duration(milliseconds: 800),
                     ),
                   );
@@ -92,15 +75,6 @@ class _ProductCardState extends ConsumerState<ProductCard>
             ),
           ],
         ),
-        // 👉 Navigation vers la page détail
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ProductDetailScreen(product: widget.product),
-            ),
-          );
-        },
       ),
     );
   }

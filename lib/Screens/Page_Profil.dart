@@ -41,17 +41,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     );
   }
 
-  void _resetProfile() {
-    ref.read(userProvider.notifier).clearProfile();
-    _nameController.text = 'Utilisateur Mock';
-    _emailController.text = 'user@example.com';
-    _cityController.text = 'Yaoundé';
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profil réinitialisé')),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(userProvider);
@@ -80,12 +69,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ElevatedButton(
               onPressed: _saveProfile,
               child: const Text('Enregistrer'),
-            ),
-            const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _resetProfile,
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: const Text('Réinitialiser'),
             ),
             const SizedBox(height: 20),
             // Affichage des infos actuelles
