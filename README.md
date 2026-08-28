@@ -12,6 +12,22 @@ Fonctionnalités principales :
 
 ---
 
+## 📂 Architecture
+- `models/` → modèles de données (`Product`)
+- `providers/` → logique métier avec Riverpod (`cartProvider`, `favoritesProvider`, etc.)
+- `screens/` → pages principales (`CatalogScreen`, `CartScreen`, `ProfileScreen`)
+- `widgets/` → composants UI (`ProductCard`, `CartItem`, `FilterBar`)
+
+## 🔑 Providers utilisés
+- `FutureProvider` → chargement des produits
+- `StateNotifierProvider` → panier, favoris, profil
+- `StateProvider` → tri et filtre
+
+
+## 🧪 Tests
+- `test/cart_provider_test.dart` → couverture unitaire du panier
+
+
 ## 🚀 Fonctionnalités
 - **Catalogue produits** : affichage, recherche, tri, filtrage
 - **Détail produit** : infos dynamiques avec passage de paramètres
