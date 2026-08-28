@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'E-commerce Riverpod',
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
