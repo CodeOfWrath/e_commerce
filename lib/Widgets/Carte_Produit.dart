@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../Models/Produit.dart';
 import '../Providers/Provider_Carte.dart';
 import '../Providers/Provider_Favorit.dart';
-import '../Screens/Page_Detail_Produit.dart';
 
 
 class ProductCard extends ConsumerStatefulWidget {
@@ -76,14 +75,6 @@ class _ProductCardState extends ConsumerState<ProductCard> with SingleTickerProv
             ),
           ],
         ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ProductDetailScreen(product: widget.product),
-            ),
-          );
-        },
       ),
     );
   }
