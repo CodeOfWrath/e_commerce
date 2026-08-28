@@ -38,4 +38,19 @@ void main() {
     notifier.clearCart();
     expect(notifier.state.isEmpty, true);
   });
+  test('Ajout multiple incrémente la quantité', () {
+    final notifier = CartNotifier();
+    final product = Product(id: '1', name: 'Chaussures', price: 59.99, imageUrl: 'url', category: 'Chaussures');
+    notifier.add(product);
+    notifier.add(product);
+    expect(notifier.state[product], 2);
+  });
+
+  test('Suppression d’un produit absent ne plante pas', () {
+    final notifier = CartNotifier();
+    final product = Product(id: '1', name: 'Chaussures', price: 59.99, imageUrl: 'url', category: 'Chaussures');
+    notifier.remove(product);
+    expect(notifier.state.isEmpty, true);
+  });
+
 }

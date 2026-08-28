@@ -40,7 +40,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     notifier.updateEmail(_emailController.text);
     notifier.updateCity(_cityController.text);
 
-    await Future.delayed(const Duration(milliseconds: 500)); // feedback visuel
+    await Future.delayed(const Duration(milliseconds: 500));
     setState(() => _loading = false);
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -50,7 +50,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(userProvider); // ✅ observe les changements
+    final user = ref.watch(userProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profil utilisateur')),
@@ -58,7 +58,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            const CircleAvatar(radius: 40, child: Icon(Icons.person, size: 40)),
+            const CircleAvatar(
+              radius: 40,
+              child: Icon(Icons.person, size: 40),
+            ),
             const SizedBox(height: 20),
 
             TextField(

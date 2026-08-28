@@ -49,7 +49,7 @@ class _ProductCardState extends ConsumerState<ProductCard>
     return Card(
       child: ListTile(
         leading: Hero(
-          tag: widget.product.id, // ✅ Hero pour animation
+          tag: widget.product.id,
           child: Image.network(widget.product.imageUrl, width: 60, height: 60),
         ),
         title: Text(widget.product.name),
@@ -68,21 +68,14 @@ class _ProductCardState extends ConsumerState<ProductCard>
                   .read(favoritesProvider.notifier)
                   .toggleFavorite(widget.product),
             ),
-            ScaleTransition(
-              scale: _scaleAnimation,
-              child: IconButton(
-                icon: const Icon(Icons.add_shopping_cart),
-                onPressed: () {
-                  ref.read(cartProvider.notifier).add(widget.product);
-                  _animateCart();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${widget.product.name} ajouté au panier'),
-                      duration: const Duration(milliseconds: 800),
-                    ),
-                  );
-                },
-              ),
+            IconButton(
+              icon: const Icon(Icons.add_shopping_cart),
+              onPressed: () {
+                ref.read(cartProvider.notifier).add(widget.product);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('${widget.product.name} ajouté au panier')),
+                );
+              },
             ),
           ],
         ),
@@ -95,7 +88,8 @@ class _ProductCardState extends ConsumerState<ProductCard>
             ),
           );
         },
-      ),
+      )
+      ,
     );
   }
 }
