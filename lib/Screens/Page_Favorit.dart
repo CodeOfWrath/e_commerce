@@ -16,13 +16,19 @@ class FavoritesScreen extends ConsumerWidget {
       appBar: AppBar(title: const Text('Favoris')),
       body: productsAsync.when(
         data: (products) {
-          final favProducts = products.where((p) => favorites.contains(p.id)).toList();
+          // Filtrer les produits favoris
+          final favProducts = products
+              .where((p) => favorites.contains(p.id))
+              .toList();
+
           if (favProducts.isEmpty) {
             return const Center(child: Text('Aucun favori'));
           }
+
           return ListView.builder(
             itemCount: favProducts.length,
-            itemBuilder: (context, index) => ProductCard(product: favProducts[index]),
+            itemBuilder: (context, index) =>
+                ProductCard(product: favProducts[index]),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),

@@ -1,17 +1,30 @@
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Models/Produit.dart';
 
 class FavoritesNotifier extends StateNotifier<Set<String>> {
-  FavoritesNotifier() : super({});
+  FavoritesNotifier() : super({}) {
+    _loadFavorites();
+  }
 
-  void toggleFavorite(Product product) {
-    if (state.contains(product.id)) {
-      state = {...state}..remove(product.id);
+  Future<void> _loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    state = prefs.getStringList('favorites')?.toSet() ?? {};
+  }
+
+  Future<void> toggleFavorite(Product product) async {
+    final newState = {...state};
+    if (newState.contains(product.id)) {
+      newState.remove(product.id);
     } else {
-      state = {...state, product.id};
+      newState.add(product.id);
     }
+    state = newState;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('favorites', state.toList());
   }
 }
+
 
 final favoritesProvider = StateNotifierProvider<FavoritesNotifier, Set<String>>((ref) => FavoritesNotifier());
