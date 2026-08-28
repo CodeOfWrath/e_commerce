@@ -16,15 +16,31 @@ class Product {
     required this.category,
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) => Product(
-    id: json['id'],
-    name: json['name'],
-    price: (json['price'] as num).toDouble(),
-    imageUrl: json['imageUrl'],
-    category: json['category'],
-  );
+  factory Product.fromJson(Map<String, dynamic> json) {
+    final id = json['id']?.toString() ?? 'unknown';
+    final name = json['name']?.toString() ?? 'Produit inconnu';
+    final imageUrl = json['imageUrl']?.toString() ?? '';
+    final category = json['category']?.toString() ?? 'Divers';
 
-  // ✅ égalité et hashCode
+    double price;
+    final rawPrice = json['price'];
+    if (rawPrice is num) {
+      price = rawPrice.toDouble();
+    } else if (rawPrice is String) {
+      price = double.tryParse(rawPrice) ?? 0.0;
+    } else {
+      price = 0.0;
+    }
+
+    return Product(
+      id: id,
+      name: name,
+      price: price,
+      imageUrl: imageUrl,
+      category: category,
+    );
+  }
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

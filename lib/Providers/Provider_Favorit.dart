@@ -1,23 +1,30 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../Models/Produit.dart';
 
 class FavoritesNotifier extends StateNotifier<Set<String>> {
   FavoritesNotifier() : super({}) {
-    _loadFavorites();
+    // On lance le chargement mais on ne peut pas await dans un constructeur
+    _init();
+  }
+
+  Future<void> _init() async {
+    await _loadFavorites();
   }
 
   Future<void> _loadFavorites() async {
     final prefs = await SharedPreferences.getInstance();
-    state = prefs.getStringList('favorites')?.toSet() ?? {};
+    final saved = prefs.getStringList('favorites');
+    if (saved != null) {
+      state = saved.toSet();
+    }
   }
 
-  Future<void> toggleFavorite(Product product) async {
+  Future<void> toggleFavorite(String productId) async {
     final newState = {...state};
-    if (newState.contains(product.id)) {
-      newState.remove(product.id);
+    if (newState.contains(productId)) {
+      newState.remove(productId);
     } else {
-      newState.add(product.id);
+      newState.add(productId);
     }
     state = newState;
 

@@ -66,7 +66,7 @@ class _ProductCardState extends ConsumerState<ProductCard>
               ),
               onPressed: () => ref
                   .read(favoritesProvider.notifier)
-                  .toggleFavorite(widget.product),
+                  .toggleFavorite(widget.product.id),
             ),
             IconButton(
               icon: const Icon(Icons.add_shopping_cart),

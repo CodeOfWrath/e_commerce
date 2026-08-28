@@ -25,16 +25,24 @@ class User {
 }
 
 class UserNotifier extends StateNotifier<User> {
-  UserNotifier() : super(User(id: 'u1', name: 'Utilisateur Mock', email: 'user@example.com', city: 'Yaoundé')) {
+  UserNotifier()
+      : super(User(
+    id: 'u1',
+    name: 'Utilisateur Mock',
+    email: 'user@example.com',
+    city: 'Yaoundé',
+  )) {
     _loadUser();
   }
 
+  /// ✅ Charger les données persistées
   Future<void> _loadUser() async {
     final prefs = await SharedPreferences.getInstance();
     final name = prefs.getString('user_name');
     final email = prefs.getString('user_email');
     final city = prefs.getString('user_city');
 
+    // Si des données existent, on les applique au state
     if (name != null || email != null || city != null) {
       state = state.copyWith(
         name: name ?? state.name,
@@ -61,8 +69,23 @@ class UserNotifier extends StateNotifier<User> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_city', newCity);
   }
+
+  /// ✅ Réinitialiser le profil
+  Future<void> clearProfile() async {
+    state = User(
+      id: 'u1',
+      name: 'Utilisateur Mock',
+      email: 'user@example.com',
+      city: 'Yaoundé',
+    );
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_name');
+    await prefs.remove('user_email');
+    await prefs.remove('user_city');
+  }
 }
 
+/// ✅ Provider exposé
 final userProvider = StateNotifierProvider<UserNotifier, User>((ref) {
   return UserNotifier();
 });

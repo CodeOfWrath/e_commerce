@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../Providers/Provider_Favorit.dart';
-import '../Providers/Provider_Produit.dart';
+import '../Providers/provider_favorit.dart';
+import '../Providers/provider_produit.dart';
 import '../Widgets/Carte_Produit.dart';
 
 class FavoritesScreen extends ConsumerWidget {
@@ -14,25 +14,15 @@ class FavoritesScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Catalogue'),
+        title: const Text('Favoris'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.favorite),
-            tooltip: 'Voir mes favoris',
+            icon: const Icon(Icons.delete),
+            tooltip: 'Vider les favoris',
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const FavoritesScreen()),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.favorite),
-            tooltip: 'Voir mes favoris',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const FavoritesScreen()),
+              ref.read(favoritesProvider.notifier).clearFavorites();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Favoris vidés')),
               );
             },
           ),
@@ -40,10 +30,8 @@ class FavoritesScreen extends ConsumerWidget {
       ),
       body: productsAsync.when(
         data: (products) {
-          // Filtrer les produits favoris
-          final favProducts = products
-              .where((p) => favorites.contains(p.id))
-              .toList();
+          final favProducts =
+          products.where((p) => favorites.contains(p.id)).toList();
 
           if (favProducts.isEmpty) {
             return const Center(child: Text('Aucun favori'));
@@ -56,7 +44,24 @@ class FavoritesScreen extends ConsumerWidget {
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Erreur: $err')),
+        error: (err, _) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error, color: Colors.red, size: 48),
+              const SizedBox(height: 12),
+              Text(
+                'Impossible de charger les favoris.\nErreur: $err',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                onPressed: () => ref.refresh(productProvider),
+                child: const Text('Réessayer'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

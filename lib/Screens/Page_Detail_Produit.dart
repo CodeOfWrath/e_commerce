@@ -25,7 +25,7 @@ class PageDetailProduit extends ConsumerWidget {
               color: favorites.contains(product.id) ? Colors.red : null,
             ),
             onPressed: () {
-              ref.read(favoritesProvider.notifier).toggleFavorite(product);
+              ref.read(favoritesProvider.notifier).toggleFavorite(product.id);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
