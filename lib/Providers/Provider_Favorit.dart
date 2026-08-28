@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../Models/Produit.dart';
 
 class FavoritesNotifier extends StateNotifier<Set<String>> {
@@ -21,10 +20,19 @@ class FavoritesNotifier extends StateNotifier<Set<String>> {
       newState.add(product.id);
     }
     state = newState;
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('favorites', state.toList());
   }
+
+  Future<void> clearFavorites() async {
+    state = {};
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('favorites');
+  }
 }
 
-
-final favoritesProvider = StateNotifierProvider<FavoritesNotifier, Set<String>>((ref) => FavoritesNotifier());
+final favoritesProvider =
+StateNotifierProvider<FavoritesNotifier, Set<String>>((ref) {
+  return FavoritesNotifier();
+});

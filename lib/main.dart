@@ -6,12 +6,14 @@ import 'Screens/Page_Favorit.dart';
 import 'Screens/Page_Profil.dart';
 import 'Screens/Pages_Carte.dart';
 
+
 void main() {
   runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

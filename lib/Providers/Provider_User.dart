@@ -25,7 +25,13 @@ class User {
 }
 
 class UserNotifier extends StateNotifier<User> {
-  UserNotifier() : super(User(id: 'u1', name: 'Utilisateur Mock', email: 'user@example.com', city: 'Yaoundé')) {
+  UserNotifier()
+      : super(User(
+    id: 'u1',
+    name: 'Utilisateur Mock',
+    email: 'user@example.com',
+    city: 'Yaoundé',
+  )) {
     _loadUser();
   }
 
@@ -35,13 +41,11 @@ class UserNotifier extends StateNotifier<User> {
     final email = prefs.getString('user_email');
     final city = prefs.getString('user_city');
 
-    if (name != null || email != null || city != null) {
-      state = state.copyWith(
-        name: name ?? state.name,
-        email: email ?? state.email,
-        city: city ?? state.city,
-      );
-    }
+    state = state.copyWith(
+      name: name ?? state.name,
+      email: email ?? state.email,
+      city: city ?? state.city,
+    );
   }
 
   Future<void> updateName(String newName) async {
@@ -60,6 +64,14 @@ class UserNotifier extends StateNotifier<User> {
     state = state.copyWith(city: newCity);
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_city', newCity);
+  }
+
+  Future<void> clearProfile() async {
+    state = User(id: 'u1', name: 'Utilisateur Mock', email: 'user@example.com', city: 'Yaoundé');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('user_name');
+    await prefs.remove('user_email');
+    await prefs.remove('user_city');
   }
 }
 
