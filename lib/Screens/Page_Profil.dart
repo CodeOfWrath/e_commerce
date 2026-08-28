@@ -13,6 +13,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _cityController;
+  bool _loading = false;
 
   @override
   void initState() {
@@ -31,10 +32,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.dispose();
   }
 
-  void _saveProfile() {
-    ref.read(userProvider.notifier).updateName(_nameController.text);
-    ref.read(userProvider.notifier).updateEmail(_emailController.text);
-    ref.read(userProvider.notifier).updateCity(_cityController.text);
+  Future<void> _saveProfile() async {
+    setState(() => _loading = true);
+    final notifier = ref.read(userProvider.notifier);
+
+    notifier.updateName(_nameController.text);
+    notifier.updateEmail(_emailController.text);
+    notifier.updateCity(_cityController.text);
+
+    await Future.delayed(const Duration(milliseconds: 500)); // feedback visuel
+    setState(() => _loading = false);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Profil mis à jour')),
@@ -43,7 +50,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(userProvider);
+    final user = ref.watch(userProvider); // ✅ observe les changements
 
     return Scaffold(
       appBar: AppBar(title: const Text('Profil utilisateur')),
@@ -53,6 +60,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           children: [
             const CircleAvatar(radius: 40, child: Icon(Icons.person, size: 40)),
             const SizedBox(height: 20),
+
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(labelText: 'Nom'),
@@ -65,13 +73,17 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               controller: _cityController,
               decoration: const InputDecoration(labelText: 'Ville'),
             ),
+
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: _saveProfile,
-              child: const Text('Enregistrer'),
+              onPressed: _loading ? null : _saveProfile,
+              child: _loading
+                  ? const CircularProgressIndicator()
+                  : const Text('Enregistrer'),
             ),
-            const SizedBox(height: 20),
-            // Affichage des infos actuelles
+
+            const SizedBox(height: 30),
+            // ✅ Affichage des infos mises à jour
             Text('Nom actuel: ${user.name}'),
             Text('Email actuel: ${user.email}'),
             Text('Ville actuelle: ${user.city}'),

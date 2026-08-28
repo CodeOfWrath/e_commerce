@@ -17,10 +17,25 @@ void main() {
     expect(notifier.state[product], 1);
   });
 
-  test('Suppression du produit', () {
+  test('Retrait du produit (quantité)', () {
+    final notifier = CartNotifier();
+    notifier.add(product);
+    notifier.add(product);
+    notifier.remove(product);
+    expect(notifier.state[product], 1);
+  });
+
+  test('Suppression complète du produit', () {
     final notifier = CartNotifier();
     notifier.add(product);
     notifier.removeProduct(product);
     expect(notifier.state.containsKey(product), false);
+  });
+
+  test('Vider le panier', () {
+    final notifier = CartNotifier();
+    notifier.add(product);
+    notifier.clearCart();
+    expect(notifier.state.isEmpty, true);
   });
 }
