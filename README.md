@@ -17,7 +17,7 @@ Ce projet sert de base solide pour un vrai e-commerce scalable.
 
 ## 📂 Architecture
 
----
+```
 lib/
 └── features/
 ├── auth/
@@ -40,7 +40,7 @@ lib/
 ├── utils/
 ├── error/
 └── router/
----
+```
 
 models → repositories → providers → screens → widgets
 
