@@ -28,7 +28,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Stream<User?> authStateChanges() {
     return remote.authStateChanges().map((model) {
       if (model == null) return null;
-      return User(id: model.id, email: model.email!);
+      return User(id: model.id, email: model.email);
     });
   }
 }

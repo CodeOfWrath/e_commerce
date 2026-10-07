@@ -17,7 +17,7 @@ class ProductCard extends ConsumerStatefulWidget {
 class _ProductCardState extends ConsumerState<ProductCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
+  //late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
@@ -26,14 +26,9 @@ class _ProductCardState extends ConsumerState<ProductCard>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-  }
-
-  void _animateCart() async {
-    await _controller.forward();
-    await _controller.reverse();
+    // _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
+    //   CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    // );
   }
 
   @override

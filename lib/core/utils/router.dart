@@ -26,7 +26,7 @@ final router = GoRouter(
     GoRoute(
       path: '/product/:id',
       builder: (context, state) {
-        final id = state.pathParameters['id']!;
+        //final id = state.pathParameters['id']!;
         return CatalogScreen();
       },
     ),

@@ -27,7 +27,7 @@ class AuthController extends StateNotifier<AuthState> {
 
     try {
       final user = await loginUsecase(email, password);
-      state = state.copyWith(isLoading: false, user: user!);
+      state = state.copyWith(isLoading: false, user: user);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
@@ -38,7 +38,7 @@ class AuthController extends StateNotifier<AuthState> {
 
     try {
       final user = await registerUsecase(email, password);
-      state = state.copyWith(isLoading: false, user: user!);
+      state = state.copyWith(isLoading: false, user: user);
     } catch (e) {
       state = state.copyWith(isLoading: false, error: e.toString());
     }
