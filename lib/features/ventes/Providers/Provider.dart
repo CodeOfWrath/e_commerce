@@ -1,27 +1,29 @@
 import 'package:e_commerce/features/ventes/Models/Produit.dart';
+import 'package:e_commerce/features/ventes/data/datasourses/product_local_datasource.dart';
 import 'package:e_commerce/features/ventes/data/datasourses/product_remote_datasource.dart';
-import 'package:e_commerce/features/ventes/data/repositories/product_repository_impl.dart';
-import 'package:e_commerce/features/ventes/domain/repositories/product_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
-// Firestore
-final firestoreProvider = Provider<FirebaseFirestore>((ref) {
-  return FirebaseFirestore.instance;
-});
+import 'package:e_commerce/core/network/dio_client.dart';
+import 'package:e_commerce/features/ventes/domain/repositories/product_repository.dart';
+import 'package:e_commerce/features/ventes/data/repositories/product_repository_impl.dart';
 
-// Remote datasource
+// Datasources
 final productRemoteDataSourceProvider =
 Provider<ProductRemoteDataSource>((ref) {
-  return ProductRemoteDataSourceImpl(
-    firestore: ref.read(firestoreProvider),
-  );
+  final dio = ref.read(dioProvider);
+  return ProductRemoteDataSourceImpl(client: dio);
+});
+
+final productLocalDataSourceProvider =
+Provider<ProductLocalDataSource>((ref) {
+  return ProductLocalDataSourceImpl();
 });
 
 // Repository
 final productRepositoryProvider = Provider<ProductRepository>((ref) {
   return ProductRepositoryImpl(
     remote: ref.read(productRemoteDataSourceProvider),
+    local: ref.read(productLocalDataSourceProvider),
   );
 });
 

@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import '../../domain/entities/product.dart';
 
 abstract class ProductRemoteDataSource {
@@ -6,23 +6,28 @@ abstract class ProductRemoteDataSource {
 }
 
 class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
-  final FirebaseFirestore firestore;
+  final Dio client;
 
-  ProductRemoteDataSourceImpl({required this.firestore});
+  ProductRemoteDataSourceImpl({required this.client});
 
   @override
   Future<List<Product>> fetchProducts() async {
-    final snapshot = await firestore.collection('products').get();
-    return snapshot.docs.map((doc) {
-      final data = doc.data();
-      return Product(
-        id: doc.id,
-        title: data['title'] ?? '',
-        description: data['description'] ?? '',
-        price: (data['price'] as num).toDouble(),
-        imageUrl: data['imageUrl'] ?? '',
-        category: data['category'] ?? '',
-      );
-    }).toList();
+    final response = await client.get('/products'); // ex: /products
+
+    if (response.statusCode == 200) {
+      final data = response.data as List;
+      return data.map((json) {
+        return Product(
+          id: json['id'].toString(),
+          title: json['title'] ?? '',
+          description: json['description'] ?? '',
+          price: (json['price'] as num).toDouble(),
+          imageUrl: json['image'] ?? '',
+          category: json['category'] ?? '',
+        );
+      }).toList();
+    } else {
+      throw Exception('Erreur API produits');
+    }
   }
 }
