@@ -1,8 +1,8 @@
-import '../Widgets/barre_Filtre.dart';
-import '../Widgets/carte_Produit.dart';
+import 'package:e_commerce/features/ventes/Providers/Provider.dart';
+import 'package:e_commerce/features/ventes/Widgets/barre_Filtre.dart';
+import 'package:e_commerce/features/ventes/Widgets/carte_Produit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../Providers/Provider_catalogue.dart';
 import 'page_favorit.dart';
 import 'pages_carte.dart';
 
@@ -11,7 +11,7 @@ class CatalogScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final products = ref.watch(catalogProvider);
+    final productsAsync = ref.watch(productsFutureProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -43,13 +43,14 @@ class CatalogScreen extends ConsumerWidget {
         children: [
           const FilterBar(),
           Expanded(
-            child: products.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : ListView.builder(
-              itemCount: products.length,
-              itemBuilder: (context, index) =>
-                  ProductCard(product: products[index]),
-            ),
+              child: productsAsync.when(
+                data: (products) => ListView.builder(
+                  itemCount: products.length,
+                  itemBuilder: (_, i) => ProductCard(product: products[i]),
+                ),
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, _) => Center(child: Text('Erreur: $e')),
+              )
           ),
         ],
       ),
