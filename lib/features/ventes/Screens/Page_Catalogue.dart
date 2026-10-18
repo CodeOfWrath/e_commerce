@@ -1,55 +1,57 @@
-import 'package:e_commerce/features/ventes/Providers/Provider.dart';
-import 'package:e_commerce/features/ventes/Screens/Page_Detail_Produit.dart';
+import '../Widgets/barre_Filtre.dart';
+import '../Widgets/carte_Produit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../Providers/Provider_catalogue.dart';
+import 'page_favorit.dart';
+import 'pages_carte.dart';
 
-class ProductsListScreen extends ConsumerWidget {
-  const ProductsListScreen({super.key});
+class CatalogScreen extends ConsumerWidget {
+  const CatalogScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final productsAsync = ref.watch(productsFutureProvider);
+    final products = ref.watch(catalogProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Produits')),
-      body: productsAsync.when(
-        data: (products) => ListView.builder(
-          itemCount: products.length,
-          itemBuilder: (_, i) {
-            final p = products[i];
-            return ListTile(
-              title: Text(p.name),
-              subtitle: Text('${p.price.toStringAsFixed(2)} €'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ProductDetailScreen(product: p),
-                  ),
-                );
-              },
-            );
-          },
-        ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Erreur réseau. Affichage des données hors-ligne si disponibles.',
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(e.toString(), style: const TextStyle(color: Colors.red)),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => ref.refresh(productsFutureProvider),
-                child: const Text('Réessayer'),
-              ),
-            ],
+      appBar: AppBar(
+        title: const Text('Catalogue'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            tooltip: 'Voir mon panier',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CartScreen()),
+              );
+            },
           ),
-        ),
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            tooltip: 'Voir mes favoris',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FavoritesScreen()),
+              );
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          const FilterBar(),
+          Expanded(
+            child: products.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+              itemCount: products.length,
+              itemBuilder: (context, index) =>
+                  ProductCard(product: products[index]),
+            ),
+          ),
+        ],
       ),
     );
   }

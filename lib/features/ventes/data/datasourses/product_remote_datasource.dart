@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 
-import '../../Models/Produit.dart';
+import '../../data/Models/Produit.dart';
 
 abstract class ProductRemoteDataSource {
   Future<List<Product>> fetchProducts();
