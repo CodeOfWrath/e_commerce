@@ -1,6 +1,6 @@
-import 'package:e_commerce/features/auth/data/datasources/auth_remote_datasource.dart';
-import 'package:e_commerce/features/auth/domain/entities/user.dart';
-import 'package:e_commerce/features/auth/domain/repositories/auth_repository.dart';
+import '../../domain/entities/user.dart';
+import '../../domain/repositories/auth_repository.dart';
+import '../datasources/auth_remote_datasource.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remote;
@@ -20,9 +20,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<void> logout() {
-    return remote.logout();
-  }
+  Future<void> logout() => remote.logout();
 
   @override
   Stream<User?> authStateChanges() {

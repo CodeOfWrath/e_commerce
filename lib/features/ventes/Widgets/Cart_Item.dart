@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../Models/Produit.dart';
-import '../Providers/Provider_Carte.dart';
 
 class CartItem extends ConsumerWidget {
   final Product product;
@@ -16,7 +15,7 @@ class CartItem extends ConsumerWidget {
       subtitle: Text('Quantité: $quantity'),
       trailing: IconButton(
         icon: const Icon(Icons.remove_circle),
-        onPressed: () => ref.read(cartProvider.notifier).remove(product),
+        onPressed: () {}//=> ref.read(cartProvider.notifier).remove(product),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
-import '../../domain/entities/product.dart';
+
+import '../../Models/Produit.dart';
 
 abstract class ProductRemoteDataSource {
   Future<List<Product>> fetchProducts();
@@ -19,8 +20,7 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
       return data.map((json) {
         return Product(
           id: json['id'].toString(),
-          title: json['title'] ?? '',
-          description: json['description'] ?? '',
+          name: json['name'] ?? '',
           price: (json['price'] as num).toDouble(),
           imageUrl: json['image'] ?? '',
           category: json['category'] ?? '',

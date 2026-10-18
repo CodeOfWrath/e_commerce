@@ -18,6 +18,8 @@ import 'package:e_commerce/features/auth/data/repositories/auth_repository_impl.
 import 'package:e_commerce/features/auth/presentation/controllers/auth_controller.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
+import '../../features/auth/presentation/controllers/auth_state.dart';
+
 
 // ---------------------- AUTH ----------------------
 

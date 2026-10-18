@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../Models/Produit.dart';
-import '../Providers/Provider_Carte.dart';
 import '../Providers/Provider_Favorit.dart';
 import '../screens/page_detail_produit.dart';
 
@@ -63,25 +62,25 @@ class _ProductCardState extends ConsumerState<ProductCard>
                   .read(favoritesProvider.notifier)
                   .toggleFavorite(widget.product.id),
             ),
-            IconButton(
-              icon: const Icon(Icons.add_shopping_cart),
-              onPressed: () {
-                ref.read(cartProvider.notifier).add(widget.product);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${widget.product.name} ajouté au panier')),
-                );
-              },
-            ),
+            // IconButton(
+            //   icon: const Icon(Icons.add_shopping_cart),
+            //   onPressed: () {
+            //     ref.read(cartProvider.notifier).add(widget.product);
+            //     ScaffoldMessenger.of(context).showSnackBar(
+            //       SnackBar(content: Text('${widget.product.name} ajouté au panier')),
+            //     );
+            //   },
+            // ),
           ],
         ),
         // ✅ Navigation vers la page détail
         onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => PageDetailProduit(product: widget.product),
-            ),
-          );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (_) => PageDetailProduit(product: widget.product),
+          //   ),
+          // );
         },
       )
       ,
