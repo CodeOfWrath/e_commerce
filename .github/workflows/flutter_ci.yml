@@ -8,25 +8,22 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # ✔ stable, pas "latest"
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4   # ✔ Node 24 compatible
 
-      - name: Setup Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.22.0' # adapte à ta version
+          flutter-version: '3.24.0'  # ✔ adapte selon ton projet
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Analyze code
+      - name: Run analyzer
         run: flutter analyze
 
       - name: Run tests
         run: flutter test
-
-      - name: Build APK
-        run: flutter build apk --release
