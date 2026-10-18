@@ -1,4 +1,4 @@
-import 'package:e_commerce/features/ventes/Models/Produit.dart';
+import 'package:e_commerce/features/ventes/data/Models/Produit.dart';
 import 'package:e_commerce/features/ventes/Widgets/Carte_Produit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

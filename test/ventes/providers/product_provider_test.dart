@@ -1,4 +1,4 @@
-import 'package:e_commerce/features/ventes/Models/Produit.dart';
+import 'package:e_commerce/features/ventes/data/Models/Produit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

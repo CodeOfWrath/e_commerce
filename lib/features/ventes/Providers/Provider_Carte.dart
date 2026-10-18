@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/legacy.dart';
-import '../Models/Produit.dart';
+import '../data/Models/Produit.dart';
 
 class CartNotifier extends StateNotifier<Map<Product, int>> {
   CartNotifier() : super({});

@@ -66,3 +66,8 @@ class FavoritesScreen extends ConsumerWidget {
     );
   }
 }
+
+extension on Object? {
+  Object? get id => null;
+}
+

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../Models/Produit.dart';
+import '../data/Models/Produit.dart';
 import 'Provider_Filtre.dart';
 import 'Provider_Produit.dart';
 

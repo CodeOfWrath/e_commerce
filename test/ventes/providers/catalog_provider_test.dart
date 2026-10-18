@@ -1,4 +1,4 @@
-import 'package:e_commerce/features/ventes/Models/Produit.dart';
+import 'package:e_commerce/features/ventes/data/Models/Produit.dart';
 import 'package:e_commerce/features/ventes/Providers/Provider_Filtre.dart';
 import 'package:e_commerce/features/ventes/Providers/Provider_Produit.dart';
 import 'package:e_commerce/features/ventes/Providers/Provider_catalogue.dart';
