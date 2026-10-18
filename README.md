@@ -11,6 +11,9 @@ la persistance locale (SharedPreferences)
 la compatibilité Android / iOS / Web
 la séparation stricte Data → Domain → Presentation
 
+Ce projet démontre une architecture Flutter moderne basée sur Riverpod 2.x, Firebase Authentication, et une structure Clean Architecture + Feature-first, conforme aux standards de production 2026.
+Il inclut un système d’état robuste (AsyncValue, StateNotifier), une séparation stricte des couches (Data → Domain → Presentation), des tests unitaires et widget, ainsi qu’une base solide pour intégrer un backend REST réel et un mode hors‑ligne.
+
 Ce projet sert de base solide pour un vrai e-commerce scalable.
 
 ---
@@ -19,27 +22,28 @@ Ce projet sert de base solide pour un vrai e-commerce scalable.
 
 ```
 lib/
-└── features/
-├── auth/
-│    ├── data/
-│    │    ├── datasources/
-│    │    ├── models/
-│    │    └── repositories/
-│    ├── domain/
-│    │    ├── entities/
-│    │    ├── repositories/
-│    │    └── usecases/
-│    └── presentation/
-│         ├── controllers/
-│         └── pages/
-├── catalog/
-├── cart/
-├── favorites/
-└── profile/
 └── core/
-├── utils/
-├── error/
-└── router/
+      ├── network/          → Dio client + interceptors
+      ├── error/            → exceptions, failures
+      ├── storage/          → Hive/Isar
+      └── router/           → GoRouter
+└── features/
+        ├── auth/
+        │    ├── data/
+        │    │    ├── datasources/
+        │    │    ├── models/
+        │    │    └── repositories/
+        │    ├── domain/
+        │    │    ├── entities/
+        │    │    ├── repositories/
+        │    │    └── usecases/
+        │    └── presentation/
+        │         ├── controllers/
+        │         └── pages/
+        ├── catalog/
+        ├── cart/
+        ├── favorites/
+        └── profile/
 ```
 
 models → repositories → providers → screens → widgets

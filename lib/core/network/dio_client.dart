@@ -1,15 +1,18 @@
-// lib/core/network/dio_client.dart
 import 'package:dio/dio.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'auth_interceptor.dart';
 
-class DioClient {
-  static final Dio _dio = Dio(
+final dioProvider = Provider<Dio>((ref) {
+  final dio = Dio(
     BaseOptions(
-      baseUrl: 'https://example.com/api', // à adapter
+      baseUrl: 'https://ton-api.com', // à adapter
       connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ),
-  )..interceptors.add(AuthInterceptor());
+  );
 
-  static Dio get instance => _dio;
-}
+  dio.interceptors.add(AuthInterceptor());
+
+  return dio;
+});

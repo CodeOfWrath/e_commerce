@@ -23,29 +23,23 @@ final router = GoRouter(
     // --------------------------------------------------------
     // PRODUITS
     // --------------------------------------------------------
-    GoRoute(
-      path: '/product/:id',
-      builder: (context, state) {
-        //final id = state.pathParameters['id']!;
-        return CatalogScreen();
-      },
-    ),
+
 
     // --------------------------------------------------------
     // PANIER
     // --------------------------------------------------------
-    GoRoute(
-      path: '/cart',
-      builder: (context, state) => const CartScreen(),
-    ),
+    // GoRoute(
+    //   path: '/cart',
+    //   builder: (context, state) => const CartScreen(),
+    // ),
 
     // --------------------------------------------------------
     // FAVORIS
     // --------------------------------------------------------
-    GoRoute(
-      path: '/favorites',
-      builder: (context, state) => const FavoritesScreen(),
-    ),
+    // GoRoute(
+    //   path: '/favorites',
+    //   builder: (context, state) => const FavoritesScreen(),
+    // ),
 
     // --------------------------------------------------------
     // PROFIL

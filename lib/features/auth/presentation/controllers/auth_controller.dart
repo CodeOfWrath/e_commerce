@@ -1,9 +1,10 @@
+import 'package:e_commerce/features/auth/domain/entities/user.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import '../../domain/usecases/login.dart';
 import '../../domain/usecases/register.dart';
 import '../../domain/usecases/logout.dart';
 import '../../domain/repositories/auth_repository.dart';
-import '../../domain/entities/user.dart';
+import 'auth_state.dart';
 
 class AuthController extends StateNotifier<AuthState> {
   final Login loginUsecase;
