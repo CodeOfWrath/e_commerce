@@ -1,27 +1,55 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../domain/entities/product_entity.dart';
+import 'package:dio/dio.dart';
+import '../models/product_model.dart';
+import '../../../../core/error/exceptions.dart';
 
 abstract class ProductRemoteDataSource {
-  Future<List<Product>> fetchProducts();
+  Future<List<ProductModel>> fetchProducts();
+  Future<ProductModel> getProductById(String id);
 }
 
 class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
-  final FirebaseFirestore firestore;
+  final Dio dio;
 
-  ProductRemoteDataSourceImpl({required this.firestore});
+  ProductRemoteDataSourceImpl({required this.dio});
 
   @override
-  Future<List<Product>> fetchProducts() async {
-    final snapshot = await firestore.collection('products').get();
-    return snapshot.docs.map((doc) {
-      final data = doc.data();
-      return Product(
-        id: doc.id,
-        name: data['name'] ?? '',
-        price: (data['price'] as num).toDouble(),
-        imageUrl: data['imageUrl'] ?? '',
-        category: data['category'] ?? '',
-      );
-    }).toList();
+  Future<List<ProductModel>> fetchProducts() async {
+    try {
+      final response = await dio.get('/products?limit=100');
+
+      if (response.statusCode == 200 && response.data != null) {
+        final data = response.data;
+        final List<dynamic> productsJson = data is Map ? (data['products'] ?? []) : data;
+
+        return productsJson
+            .map((json) => ProductModel.fromJson(Map<String, dynamic>.from(json)))
+            .toList();
+      } else {
+        throw ServerException('Erreur de récupération des produits (${response.statusCode})');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Erreur réseau lors du chargement des produits');
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<ProductModel> getProductById(String id) async {
+    try {
+      final response = await dio.get('/products/$id');
+
+      if (response.statusCode == 200 && response.data != null) {
+        return ProductModel.fromJson(Map<String, dynamic>.from(response.data));
+      } else {
+        throw ServerException('Produit non trouvé ($id)');
+      }
+    } on DioException catch (e) {
+      throw ServerException(e.message ?? 'Erreur lors du chargement du produit');
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw ServerException(e.toString());
+    }
   }
 }

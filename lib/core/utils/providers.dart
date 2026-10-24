@@ -1,63 +1,57 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:e_commerce/core/network/dio_client.dart';
+import 'package:e_commerce/core/network/network_info.dart';
 
-// Firebase User (alias)
-import 'package:firebase_auth/firebase_auth.dart' as fb;
-
-// DOMAIN
-import 'package:e_commerce/features/auth/domain/entities/user.dart';
+// AUTH
 import 'package:e_commerce/features/auth/domain/repositories/auth_repository.dart';
 import 'package:e_commerce/features/auth/domain/usecases/login.dart';
 import 'package:e_commerce/features/auth/domain/usecases/register.dart';
 import 'package:e_commerce/features/auth/domain/usecases/logout.dart';
-
-// DATA
+import 'package:e_commerce/features/auth/domain/usecases/get_current_user.dart';
 import 'package:e_commerce/features/auth/data/datasources/auth_remote_datasource.dart';
+import 'package:e_commerce/features/auth/data/datasources/auth_local_datasource.dart';
 import 'package:e_commerce/features/auth/data/repositories/auth_repository_impl.dart';
 
-// PRESENTATION
-import 'package:e_commerce/features/auth/presentation/controllers/auth_controller.dart';
-import 'package:flutter_riverpod/legacy.dart';
+// RE-EXPORTS
+export 'package:e_commerce/features/ventes/Providers/Provider_Produit.dart';
+export 'package:e_commerce/features/ventes/Providers/Provider_catalogue.dart';
+export 'package:e_commerce/features/ventes/Providers/Provider_Carte.dart';
+export 'package:e_commerce/features/ventes/Providers/Provider_Favorit.dart';
+export 'package:e_commerce/features/ventes/Providers/Provider_Filtre.dart';
+export 'package:e_commerce/features/ventes/Providers/Provider_User.dart';
+export 'package:e_commerce/features/auth/presentation/controllers/auth_controller.dart';
 
+// ---------------------- AUTH PROVIDERS ----------------------
 
-// ---------------------- AUTH ----------------------
+final networkInfoProvider = Provider<NetworkInfo>((ref) => NetworkInfoImpl());
 
-// Remote datasource (Firebase)
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
-  return AuthRemoteDataSourceImpl(
-    firebaseAuth: fb.FirebaseAuth.instance,
+  return AuthRemoteDataSourceImpl(dio: DioClient.instance);
+});
+
+final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
+  return AuthLocalDataSourceImpl();
+});
+
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  return AuthRepositoryImpl(
+    remote: ref.watch(authRemoteDataSourceProvider),
+    local: ref.watch(authLocalDataSourceProvider),
   );
 });
 
-// Repository
-final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  return AuthRepositoryImpl(ref.read(authRemoteDataSourceProvider));
-});
-
-// Usecases
 final loginUsecaseProvider = Provider<Login>((ref) {
-  return Login(ref.read(authRepositoryProvider));
+  return Login(ref.watch(authRepositoryProvider));
 });
 
 final registerUsecaseProvider = Provider<Register>((ref) {
-  return Register(ref.read(authRepositoryProvider));
+  return Register(ref.watch(authRepositoryProvider));
 });
 
 final logoutUsecaseProvider = Provider<Logout>((ref) {
-  return Logout(ref.read(authRepositoryProvider));
+  return Logout(ref.watch(authRepositoryProvider));
 });
 
-// Controller
-final authControllerProvider =
-StateNotifierProvider<AuthController, AuthState>((ref) {
-  return AuthController(
-    loginUsecase: ref.read(loginUsecaseProvider),
-    registerUsecase: ref.read(registerUsecaseProvider),
-    logoutUsecase: ref.read(logoutUsecaseProvider),
-    authRepository: ref.read(authRepositoryProvider),
-  );
-});
-
-// Firebase Stream (firebase_auth.User)
-final firebaseAuthStateProvider = StreamProvider<fb.User?>((ref) {
-  return fb.FirebaseAuth.instance.authStateChanges();
+final getCurrentUserUsecaseProvider = Provider<GetCurrentUser>((ref) {
+  return GetCurrentUser(ref.watch(authRepositoryProvider));
 });

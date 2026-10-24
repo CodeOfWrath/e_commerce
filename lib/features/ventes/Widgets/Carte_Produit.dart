@@ -1,90 +1,89 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../data/Models/Produit.dart';
+import '../domain/entities/product_entity.dart';
 import '../Providers/Provider_Carte.dart';
 import '../Providers/Provider_Favorit.dart';
-import '../screens/page_detail_produit.dart';
+import '../Screens/Page_Detail_Produit.dart';
 
-class ProductCard extends ConsumerStatefulWidget {
+class ProductCard extends ConsumerWidget {
   final Product product;
   const ProductCard({super.key, required this.product});
 
   @override
-  ConsumerState<ProductCard> createState() => _ProductCardState();
-}
-
-class _ProductCardState extends ConsumerState<ProductCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  //late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-    // _scaleAnimation = Tween<double>(begin: 1.0, end: 1.3).animate(
-    //   CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    // );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final favorites = ref.watch(favoritesProvider);
+    final isFav = favorites.contains(product.id);
 
     return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: ListTile(
-        leading: Hero(
-          tag: widget.product.id,
-          child: Image.network(widget.product.imageUrl, width: 60, height: 60),
+        leading: SizedBox(
+          width: 50,
+          height: 50,
+          child: Hero(
+            tag: 'product_image_${product.id}',
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: product.imageUrl.startsWith('http')
+                  ? Image.network(
+                      product.imageUrl,
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.shopping_bag, size: 30),
+                    )
+                  : const Icon(Icons.shopping_bag, size: 30),
+            ),
+          ),
         ),
-        title: Text(widget.product.name),
-        subtitle: Text('${widget.product.price} € • ${widget.product.category}'),
+        title: Text(
+          product.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        subtitle: Text(
+          '${product.price.toStringAsFixed(2)} € • ${product.category}',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
               icon: Icon(
-                favorites.contains(widget.product.id)
-                    ? Icons.favorite
-                    : Icons.favorite_border,
-                color: favorites.contains(widget.product.id) ? Colors.red : null,
+                isFav ? Icons.favorite : Icons.favorite_border,
+                color: isFav ? Colors.red : null,
               ),
-              onPressed: () => ref
-                  .read(favoritesProvider.notifier)
-                  .toggleFavorite(widget.product.id),
+              onPressed: () {
+                ref.read(favoritesProvider.notifier).toggleFavorite(product.id);
+              },
             ),
             IconButton(
               icon: const Icon(Icons.add_shopping_cart),
               onPressed: () {
-                ref.read(cartProvider.notifier).add(widget.product);
+                ref.read(cartProvider.notifier).add(product);
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${widget.product.name} ajouté au panier')),
+                  SnackBar(
+                    content: Text('${product.name} ajouté au panier'),
+                    duration: const Duration(seconds: 1),
+                  ),
                 );
               },
             ),
           ],
         ),
-        // ✅ Navigation vers la page détail
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => PageDetailProduit(product: widget.product),
+              builder: (_) => PageDetailProduit(product: product),
             ),
           );
         },
-      )
-      ,
+      ),
     );
   }
 }

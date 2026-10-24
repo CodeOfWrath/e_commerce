@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/Models/Produit.dart';
+import '../domain/entities/product_entity.dart';
 import '../Providers/Provider_Carte.dart';
 import '../Providers/Provider_Favorit.dart';
 
@@ -12,6 +12,7 @@ class PageDetailProduit extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final favorites = ref.watch(favoritesProvider);
+    final isFav = favorites.contains(product.id);
 
     return Scaffold(
       appBar: AppBar(
@@ -19,21 +20,20 @@ class PageDetailProduit extends ConsumerWidget {
         actions: [
           IconButton(
             icon: Icon(
-              favorites.contains(product.id)
-                  ? Icons.favorite
-                  : Icons.favorite_border,
-              color: favorites.contains(product.id) ? Colors.red : null,
+              isFav ? Icons.favorite : Icons.favorite_border,
+              color: isFav ? Colors.red : null,
             ),
             onPressed: () {
               ref.read(favoritesProvider.notifier).toggleFavorite(product.id);
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    favorites.contains(product.id)
+                    isFav
                         ? '${product.name} retiré des favoris'
                         : '${product.name} ajouté aux favoris',
                   ),
-                  duration: const Duration(milliseconds: 800),
+                  duration: const Duration(milliseconds: 1000),
                 ),
               );
             },
@@ -45,64 +45,117 @@ class PageDetailProduit extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Hero(
-              tag: product.id, // animation entre liste et détail
-              child: Image.network(
-                product.imageUrl,
+              tag: 'product_image_${product.id}',
+              child: SizedBox(
                 width: double.infinity,
-                height: 250,
-                fit: BoxFit.cover,
+                height: 280,
+                child: product.imageUrl.startsWith('http')
+                    ? Image.network(
+                        product.imageUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.shopping_bag, size: 80, color: Colors.grey),
+                        ),
+                      )
+                    : Container(
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.shopping_bag, size: 80, color: Colors.grey),
+                      ),
               ),
             ),
             const SizedBox(height: 16),
-
-            // Nom et prix
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
                 product.name,
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
+            const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                '${product.price} € • ${product.category}',
-                style: const TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Bouton ajouter au panier
-            Center(
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.add_shopping_cart),
-                label: const Text('Ajouter au panier'),
-                onPressed: () {
-                  ref.read(cartProvider.notifier).add(product);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${product.name} ajouté au panier'),
-                      duration: const Duration(milliseconds: 800),
+              child: Row(
+                children: [
+                  Text(
+                    '${product.price.toStringAsFixed(2)} €',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
                     ),
-                  );
-                },
+                  ),
+                  const Spacer(),
+                  Chip(
+                    label: Text(product.category),
+                    backgroundColor: Theme.of(context).primaryColor.withAlpha(30),
+                  ),
+                  if (product.rating > 0) ...[
+                    const SizedBox(width: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.star, color: Colors.amber, size: 20),
+                        const SizedBox(width: 4),
+                        Text(
+                          product.rating.toStringAsFixed(1),
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
               ),
             ),
             const SizedBox(height: 20),
-
-            // Description fictive
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Description du produit :\n'
-                    'Ce produit est fabriqué avec des matériaux de haute qualité. '
-                    'Idéal pour un usage quotidien et durable dans le temps.',
-                style: TextStyle(fontSize: 16),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  icon: const Icon(Icons.add_shopping_cart),
+                  label: const Text('Ajouter au panier', style: TextStyle(fontSize: 18)),
+                  onPressed: () {
+                    ref.read(cartProvider.notifier).add(product);
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('${product.name} ajouté au panier'),
+                        duration: const Duration(milliseconds: 1000),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
+            const SizedBox(height: 24),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Description du produit',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    product.description.isNotEmpty
+                        ? product.description
+                        : 'Ce produit est issu de l\'API REST. Il offre d\'excellentes caractéristiques et une qualité remarquable.',
+                    style: const TextStyle(fontSize: 15, height: 1.4),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 30),
           ],
         ),
       ),

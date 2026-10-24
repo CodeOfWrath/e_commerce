@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../Providers/provider_favorit.dart';
-import '../Providers/provider_produit.dart';
+import '../Providers/Provider_Favorit.dart';
+import '../Providers/Provider_Produit.dart';
 import '../Widgets/Carte_Produit.dart';
 
 class FavoritesScreen extends ConsumerWidget {
@@ -14,33 +14,41 @@ class FavoritesScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Favoris'),
+        title: const Text('Mes Favoris'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
-            tooltip: 'Vider les favoris',
-            onPressed: () {
-              ref.read(favoritesProvider.notifier).clearFavorites();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Favoris vidés')),
-              );
-            },
-          ),
+          if (favorites.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              tooltip: 'Vider les favoris',
+              onPressed: () {
+                ref.read(favoritesProvider.notifier).clearFavorites();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Favoris vidés')),
+                );
+              },
+            ),
         ],
       ),
       body: productsAsync.when(
         data: (products) {
-          final favProducts =
-          products.where((p) => favorites.contains(p.id)).toList();
+          final favProducts = products.where((p) => favorites.contains(p.id)).toList();
 
           if (favProducts.isEmpty) {
-            return const Center(child: Text('Aucun favori'));
+            return const Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.favorite_border, size: 80, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('Aucun favori pour le moment', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                ],
+              ),
+            );
           }
 
           return ListView.builder(
             itemCount: favProducts.length,
-            itemBuilder: (context, index) =>
-                ProductCard(product: favProducts[index]),
+            itemBuilder: (context, index) => ProductCard(product: favProducts[index]),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -48,15 +56,12 @@ class FavoritesScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error, color: Colors.red, size: 48),
+              const Icon(Icons.error_outline, color: Colors.red, size: 48),
               const SizedBox(height: 12),
-              Text(
-                'Impossible de charger les favoris.\nErreur: $err',
-                textAlign: TextAlign.center,
-              ),
+              Text('Erreur: $err', textAlign: TextAlign.center),
               const SizedBox(height: 12),
               ElevatedButton(
-                onPressed: () => ref.refresh(productProvider),
+                onPressed: () => ref.invalidate(productProvider),
                 child: const Text('Réessayer'),
               ),
             ],
@@ -66,8 +71,3 @@ class FavoritesScreen extends ConsumerWidget {
     );
   }
 }
-
-extension on Object? {
-  Object? get id => null;
-}
-

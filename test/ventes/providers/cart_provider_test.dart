@@ -1,9 +1,10 @@
-import 'package:e_commerce/features/ventes/data/Models/Produit.dart';
+import 'package:e_commerce/features/ventes/domain/entities/product_entity.dart';
 import 'package:e_commerce/features/ventes/Providers/Provider_Carte.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  final product = Product(
+  const product = Product(
     id: '1',
     name: 'Chaussures',
     price: 59.99,
@@ -12,45 +13,49 @@ void main() {
   );
 
   test('Ajout au panier', () {
-    final notifier = CartNotifier();
+    final container = ProviderContainer();
+    final notifier = container.read(cartProvider.notifier);
     notifier.add(product);
-    expect(notifier.state[product], 1);
+    expect(container.read(cartProvider)[product], 1);
   });
 
   test('Retrait du produit (quantité)', () {
-    final notifier = CartNotifier();
+    final container = ProviderContainer();
+    final notifier = container.read(cartProvider.notifier);
     notifier.add(product);
     notifier.add(product);
     notifier.remove(product);
-    expect(notifier.state[product], 1);
+    expect(container.read(cartProvider)[product], 1);
   });
 
   test('Suppression complète du produit', () {
-    final notifier = CartNotifier();
+    final container = ProviderContainer();
+    final notifier = container.read(cartProvider.notifier);
     notifier.add(product);
     notifier.removeProduct(product);
-    expect(notifier.state.containsKey(product), false);
+    expect(container.read(cartProvider).containsKey(product), false);
   });
 
   test('Vider le panier', () {
-    final notifier = CartNotifier();
+    final container = ProviderContainer();
+    final notifier = container.read(cartProvider.notifier);
     notifier.add(product);
     notifier.clearCart();
-    expect(notifier.state.isEmpty, true);
+    expect(container.read(cartProvider).isEmpty, true);
   });
+
   test('Ajout multiple incrémente la quantité', () {
-    final notifier = CartNotifier();
-    final product = Product(id: '1', name: 'Chaussures', price: 59.99, imageUrl: 'url', category: 'Chaussures');
+    final container = ProviderContainer();
+    final notifier = container.read(cartProvider.notifier);
     notifier.add(product);
     notifier.add(product);
-    expect(notifier.state[product], 2);
+    expect(container.read(cartProvider)[product], 2);
   });
 
   test('Suppression d’un produit absent ne plante pas', () {
-    final notifier = CartNotifier();
-    final product = Product(id: '1', name: 'Chaussures', price: 59.99, imageUrl: 'url', category: 'Chaussures');
+    final container = ProviderContainer();
+    final notifier = container.read(cartProvider.notifier);
     notifier.remove(product);
-    expect(notifier.state.isEmpty, true);
+    expect(container.read(cartProvider).isEmpty, true);
   });
-
 }
