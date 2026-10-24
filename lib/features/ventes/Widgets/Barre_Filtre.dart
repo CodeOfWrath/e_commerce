@@ -10,47 +10,70 @@ class FilterBar extends ConsumerWidget {
     final sortOption = ref.watch(sortProvider);
     final categoryFilter = ref.watch(categoryFilterProvider);
 
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Row(
-        children: [
-          // ✅ Dropdown pour le tri
-          DropdownButton<SortOption>(
-            value: sortOption,
-            onChanged: (value) {
-              if (value != null) {
-                ref.read(sortProvider.notifier).state = value;
-              }
-            },
-            items: const [
-              DropdownMenuItem(
-                value: SortOption.priceAsc,
-                child: Text('Prix croissant'),
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 6.0),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: 'Rechercher un produit...',
+              prefixIcon: const Icon(Icons.search),
+              isDense: true,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
-              DropdownMenuItem(
-                value: SortOption.priceDesc,
-                child: Text('Prix décroissant'),
-              ),
-            ],
-          ),
-          const SizedBox(width: 20),
-
-          // ✅ Dropdown pour le filtre par catégorie
-          DropdownButton<String?>(
-            value: categoryFilter,
-            hint: const Text('Catégorie'),
+            ),
             onChanged: (value) {
-              ref.read(categoryFilterProvider.notifier).state = value;
+              ref.read(searchQueryProvider.notifier).state = value;
             },
-            items: const [
-              DropdownMenuItem(value: null, child: Text('Toutes')),
-              DropdownMenuItem(value: 'Chaussures', child: Text('Chaussures')),
-              DropdownMenuItem(value: 'Vêtements', child: Text('Vêtements')),
-              DropdownMenuItem(value: 'Accessoires', child: Text('Accessoires')),
-            ],
           ),
-        ],
-      ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                DropdownButton<SortOption>(
+                  value: sortOption,
+                  onChanged: (value) {
+                    if (value != null) {
+                      ref.read(sortProvider.notifier).state = value;
+                    }
+                  },
+                  items: const [
+                    DropdownMenuItem(
+                      value: SortOption.priceAsc,
+                      child: Text('Prix croissant'),
+                    ),
+                    DropdownMenuItem(
+                      value: SortOption.priceDesc,
+                      child: Text('Prix décroissant'),
+                    ),
+                  ],
+                ),
+                const SizedBox(width: 16),
+                DropdownButton<String?>(
+                  value: categoryFilter,
+                  hint: const Text('Toutes catégories'),
+                  onChanged: (value) {
+                    ref.read(categoryFilterProvider.notifier).state = value;
+                  },
+                  items: const [
+                    DropdownMenuItem(value: null, child: Text('Toutes')),
+                    DropdownMenuItem(value: 'beauty', child: Text('Beauté')),
+                    DropdownMenuItem(value: 'fragrances', child: Text('Parfums')),
+                    DropdownMenuItem(value: 'furniture', child: Text('Meubles')),
+                    DropdownMenuItem(value: 'groceries', child: Text('Épicerie')),
+                    DropdownMenuItem(value: 'Chaussures', child: Text('Chaussures')),
+                    DropdownMenuItem(value: 'Vêtements', child: Text('Vêtements')),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

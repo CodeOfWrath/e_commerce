@@ -1,7 +1,8 @@
-import 'package:e_commerce/core/utils/providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../../../../core/utils/providers.dart';
+import '../../../ventes/Screens/Page_Catalogue.dart';
+import 'register_page.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -11,105 +12,139 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class _LoginPageState extends ConsumerState<LoginPage> {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _usernameController = TextEditingController(text: 'emilys');
+  final _passwordController = TextEditingController(text: 'emilyspass');
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(authControllerProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      appBar: AppBar(title: const Text('Connexion JWT REST API')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (state.error != null)
-              Text(state.error!, style: const TextStyle(color: Colors.red)),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+            const Icon(Icons.lock_person_outlined, size: 80, color: Colors.blue),
+            const SizedBox(height: 16),
+            const Text(
+              'Bienvenue sur l\'E-Commerce',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
+            const SizedBox(height: 8),
+            const Text(
+              'Authentification JWT via API REST DummyJSON',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 24),
+
+            if (state.error != null) ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.withAlpha(30),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.withAlpha(100)),
+                ),
+                child: Text(
+                  state.error!,
+                  style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+              const SizedBox(height: 16),
+            ],
+
             TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(labelText: 'Mot de passe'),
-              obscureText: true,
+              controller: _usernameController,
+              decoration: const InputDecoration(
+                labelText: 'Nom d\'utilisateur ou Email',
+                prefixIcon: Icon(Icons.person),
+                border: OutlineInputBorder(),
+                helperText: 'Compte démo REST: emilys ou kminchelle',
+              ),
             ),
             const SizedBox(height: 16),
+
+            TextField(
+              controller: _passwordController,
+              decoration: const InputDecoration(
+                labelText: 'Mot de passe',
+                prefixIcon: Icon(Icons.lock),
+                border: OutlineInputBorder(),
+                helperText: 'Mot de passe démo REST: emilyspass ou 0x8r5e',
+              ),
+              obscureText: true,
+            ),
+            const SizedBox(height: 24),
+
             if (state.isLoading)
-              const CircularProgressIndicator()
+              const Center(child: CircularProgressIndicator())
             else
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                ),
                 onPressed: () async {
+                  final navigator = Navigator.of(context);
                   await ref
                       .read(authControllerProvider.notifier)
-                      .login(_emailController.text, _passwordController.text);
+                      .login(_usernameController.text, _passwordController.text);
+
+                  if (!mounted) return;
                   if (ref.read(authControllerProvider).user != null) {
-                    Navigator.pushReplacementNamed(context, '/restaurants');
+                    navigator.pushReplacement(
+                      MaterialPageRoute(builder: (_) => const CatalogScreen()),
+                    );
                   }
                 },
-                child: const Text('Se connecter'),
+                child: const Text('Se connecter (JWT)', style: TextStyle(fontSize: 16)),
               ),
-            TextButton(
+
+            const SizedBox(height: 12),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const _RegisterPageInline(),
+                    builder: (_) => const CatalogScreen(),
                   ),
                 );
               },
-              child: const Text('Créer un compte'),
+              child: const Text('Continuer sans connexion (Mode Invité)'),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
-// petite page register inline pour garder simple
-class _RegisterPageInline extends ConsumerWidget {
-  const _RegisterPageInline();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
-    final state = ref.watch(authControllerProvider);
-
-    return Scaffold(
-      appBar: AppBar(title: const Text('Register')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            if (state.error != null)
-              Text(state.error!, style: const TextStyle(color: Colors.red)),
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: passwordController,
-              decoration: const InputDecoration(labelText: 'Mot de passe'),
-              obscureText: true,
-            ),
             const SizedBox(height: 16),
-            if (state.isLoading)
-              const CircularProgressIndicator()
-            else
-              ElevatedButton(
-                onPressed: () async {
-                  await ref
-                      .read(authControllerProvider.notifier)
-                      .register(emailController.text, passwordController.text);
-                  if (ref.read(authControllerProvider).user != null) {
-                    Navigator.pushReplacementNamed(context, '/restaurants');
-                  }
-                },
-                child: const Text('Créer un compte'),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Vous n\'avez pas de compte ?'),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const RegisterPage(),
+                      ),
+                    );
+                  },
+                  child: const Text('Créer un compte'),
+                ),
+              ],
+            ),
           ],
         ),
       ),

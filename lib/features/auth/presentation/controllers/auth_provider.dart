@@ -1,15 +1,25 @@
-import 'package:e_commerce/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../core/network/dio_client.dart';
+import '../../data/datasources/auth_remote_datasource.dart';
+import '../../data/datasources/auth_local_datasource.dart';
+import '../../data/repositories/auth_repository_impl.dart';
+import '../../domain/repositories/auth_repository.dart';
 
-// Remote datasource Firebase
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
-  return AuthRemoteDataSourceImpl(
-    firebaseAuth: FirebaseAuth.instance,
+  return AuthRemoteDataSourceImpl(dio: DioClient.instance);
+});
+
+final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
+  return AuthLocalDataSourceImpl();
+});
+
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  return AuthRepositoryImpl(
+    remote: ref.watch(authRemoteDataSourceProvider),
+    local: ref.watch(authLocalDataSourceProvider),
   );
 });
 
-// Stream Firebase User (firebase_auth.User)
-final firebaseAuthStateProvider = StreamProvider<User?>((ref) {
-  return FirebaseAuth.instance.authStateChanges();
+final authStateChangesProvider = StreamProvider((ref) {
+  return ref.watch(authRepositoryProvider).authStateChanges();
 });

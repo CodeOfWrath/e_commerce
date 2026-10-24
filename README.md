@@ -1,131 +1,108 @@
-🛒 Flutter E-commerce App — Architecture Moderne (Riverpod + Firebase)
+# 🛒 E-Commerce Flutter App — Clean Architecture & REST API Real Backend
 
-📖 Description
-
-Application Flutter e-commerce démontrant :
-la maîtrise du state management avec Riverpod 2.x
-une architecture Clean + Feature-first
-l’intégration Firebase Auth (Email/Password)
-la gestion d’états asynchrones (AsyncValue, StateNotifier)
-la persistance locale (SharedPreferences)
-la compatibilité Android / iOS / Web
-la séparation stricte Data → Domain → Presentation
-
-Ce projet démontre une architecture Flutter moderne basée sur Riverpod 2.x, Firebase Authentication, et une structure Clean Architecture + Feature-first, conforme aux standards de production 2026.
-Il inclut un système d’état robuste (AsyncValue, StateNotifier), une séparation stricte des couches (Data → Domain → Presentation), des tests unitaires et widget, ainsi qu’une base solide pour intégrer un backend REST réel et un mode hors‑ligne.
-
-Ce projet sert de base solide pour un vrai e-commerce scalable.
+Application Flutter e-commerce complète connectée à une **API REST réelle (DummyJSON REST API)** avec authentification JWT, mise en cache locale avec **Hive**, mode hors-ligne intelligent et gestion d'erreurs réseau.
 
 ---
 
-## 📂 Architecture
+## 🚀 Fonctionnalités Obligatoires Implémentées
 
-```
+1. **Authentification JWT / REST API** :
+   - Connexion (`POST /auth/login`), Inscription (`POST /users/add`), Profil (`GET /auth/me`) et Déconnexion.
+   - Stockage sécurisé des tokens `accessToken` et `refreshToken` en cache local avec Hive.
+   - Gestion automatique du **Refresh Token** via un `AuthInterceptor` Dio lors de la réception d'un statut HTTP 401.
+
+2. **3 Écrans Connectés à une API REST Réelle** :
+   - **Catalogue Produit** (`GET /products?limit=100`) : affichage de la liste des produits avec filtres par catégorie, recherche textuelle et tri par prix.
+   - **Détail Produit** (`GET /products/{id}`) : fiche complète avec prix, note (rating), image Hero animation et description.
+   - **Profil Utilisateur** (`GET /auth/me`) : affichage des informations du compte connecté via JWT REST API et statut de session.
+   - *(Bonus)* Écran **Mon Panier** & écran **Mes Favoris**.
+
+3. **Mise en Cache Locale & Mode Hors-Ligne (Hive)** :
+   - Sauvegarde automatique de la liste des produits dans la box Hive `products_box`.
+   - Si la connexion Internet est absente ou si une erreur réseau survient, l'application bascule automatiquement sur les données locales du cache Hive.
+
+4. **Gestion d'Erreurs Réseau & Messages Utilisateurs** :
+   - Transformation des exceptions Dio/Network en `ServerFailure`, `CacheFailure`, `NetworkFailure` et `UnauthorizedFailure`.
+   - Interface utilisateur réactive avec affichage de messages d'erreur explicites et boutons "Réessayer" (`ref.invalidate`).
+
+---
+
+## 🏗️ Architecture Clean (Clean Architecture + Riverpod)
+
+Le projet suit rigoureusement les principes de la **Clean Architecture** découpée en couches indépendantes :
+
+```text
 lib/
-└── core/
-      ├── network/          → Dio client + interceptors
-      ├── error/            → exceptions, failures
-      ├── storage/          → Hive/Isar
-      └── router/           → GoRouter
-└── features/
-        ├── auth/
-        │    ├── data/
-        │    │    ├── datasources/
-        │    │    ├── models/
-        │    │    └── repositories/
-        │    ├── domain/
-        │    │    ├── entities/
-        │    │    ├── repositories/
-        │    │    └── usecases/
-        │    └── presentation/
-        │         ├── controllers/
-        │         └── pages/
-        ├── catalog/
-        ├── cart/
-        ├── favorites/
-        └── profile/
+├── core/
+│   ├── error/              # Handling Exceptions & Failures
+│   ├── network/            # DioClient, AuthInterceptor (JWT & Refresh), NetworkInfo
+│   ├── storage/            # HiveConfig
+│   └── utils/              # Router (GoRouter), Providers globaux Riverpod
+│
+├── features/
+│   ├── auth/               # Module Authentification REST API
+│   │   ├── data/           # Models, Remote & Local DataSources, RepositoriesImpl
+│   │   ├── domain/         # Entities (User, AuthState), Repositories interfaces, UseCases
+│   │   └── presentation/   # AuthController (Riverpod Notifier), Pages (Login, Register)
+│   │
+│   └── ventes/             # Module E-Commerce / Produits
+│       ├── data/           # ProductModel, Remote & Local DataSources, RepositoryImpl
+│       ├── domain/         # Product Entity, Repository interface
+│       ├── Providers/      # Providers Riverpod (Catalog, Cart, Favorites, Filter, User)
+│       ├── Screens/        # CatalogScreen, DetailScreen, ProfileScreen, CartScreen, FavoritesScreen
+│       └── Widgets/        # ProductCard, FilterBar, CartItem
 ```
 
-models → repositories → providers → screens → widgets
+---
 
-Le projet est organisé en sous-dossiers pour éviter une architecture "flat" :
+## 🌐 Endpoints REST API Utilisés (`https://dummyjson.com`)
 
-- `models/` → modèles de données (`Product`, `User`)
-- `providers/` → logique métier avec Riverpod (`cartProvider`, `favoritesProvider`, `userProvider`, `productProvider`, `filterProvider`, `catalogProvider`)
-- `screens/` → pages principales (`CatalogScreen`, `CartScreen`, `ProfileScreen`, `ProductDetailScreen`, `FavoritesScreen`)
-- `widgets/` → composants UI réutilisables (`ProductCard`, `CartItem`, `FilterBar`)
-- `assets/` → données mockées (`products.json`)
-
-Cette organisation permet de séparer clairement la logique métier (state management) de la présentation (UI), et de préparer une évolution vers des données réelles (API REST ou GraphQL).
+| Service | Méthode | Endpoint | Description |
+| :--- | :--- | :--- | :--- |
+| **Auth Login** | `POST` | `/auth/login` | Authentification JWT (`username`, `password`) |
+| **Auth Refresh** | `POST` | `/auth/refresh` | Rafraîchissement du token expiré |
+| **Auth Me** | `GET` | `/auth/me` | Récupération du profil utilisateur authentifié |
+| **Register** | `POST` | `/users/add` | Inscription d'un nouvel utilisateur |
+| **Produits** | `GET` | `/products?limit=100` | Chargement des produits du catalogue |
+| **Produit ID** | `GET` | `/products/{id}` | Détail d'un produit spécifique |
 
 ---
 
-## 🔑 Providers utilisés
-# Auth
-- `StateNotifierProvider<AuthController, AuthState>` → login/register/logout + écoute Firebase
-- `StreamProvider<fb.User?>` → état Firebase Auth en temps réel
-# Catalogue
-- `FutureProvider<List<Product>>` → chargement JSON local ou API
-- `StateProvider<String?>` → filtre catégorie
-- `StateProvider<SortOption>` → tri
-- `Provider<List<Product>>` → catalogue filtré + trié
-# Panier
-- `StateNotifierProvider<CartNotifier, Map<Product, int>>`
-# Favoris
+## 🧪 Tests Unitaires & Widgets
 
-- `StateNotifierProvider<FavoritesNotifier, Set<String>>` → (persistés via SharedPreferences)
-# Profil
-- `StateNotifierProvider<UserNotifier, User>` → (mock ou Firebase selon version)
+Le projet inclut une suite complète de **28 tests automatisés** :
+- **Couche Repository** (`test/ventes/data/product_repository_impl_test.dart` & `test/auth/data/auth_repository_impl_test.dart`) : validation du Repository Pattern, du cache local Hive et du basculement en mode hors-ligne.
+- **Providers Riverpod** (`test/ventes/providers/*`) : tests d'états pour le catalogue, le panier, les favoris et le profil utilisateur.
+- **Widgets** (`test/ventes/widgets/*`) : validation des composants UI et interactions.
 
-👉 Cela fait **7 providers distincts**, bien au-delà du minimum requis.
-
----
-
-## 🚀 Fonctionnalités
-- **Catalogue produits** : affichage, Pull-to-refresh, Hero animation vers ProductDetail, tri et filtrage par catégorie
-- **Détail produit** : navigation avec Hero animation et ajout au panier
-- **Authentification Firebase** : Login / Register (Email/Password), Gestion des erreurs Firebase, Redirection automatique via GoRouter, État global via AuthController
-- **Panier** : ajout, suppression, modification des quantités, calcul du total
-- **Favoris persistés** : stockage local avec `SharedPreferences`
-- **Profil utilisateur mock** : formulaire interactif + affichage des données mises à jour
-- **Gestion des états** : `AsyncValue` pour loading/error/success avec feedback utilisateur (SnackBars, boutons Réessayer)
-- **Bonus** : animation sur l’ajout au panier et pull-to-refresh sur le catalogue
-
----
-
-## 🧪 Tests
-Le projet inclut plusieurs fichiers de test pour valider les fonctionnalités principales et les cas limites :
-
-- `test/providers/cart_provider_test.dart` → panier (ajout multiple, suppression, vider le panier)
-- `test/providers/favorites_provider_test.dart` → favoris (ajout, suppression, persistance simulée)
-- `test/providers/user_provider_test.dart` → profil utilisateur (mise à jour nom/email/ville, persistance locale)
-- `test/providers/catalog_provider_test.dart` → logique de tri/filtrage dérivée
-- `test/widgets/product_card_test.dart` → interaction UI (ajout au panier, navigation vers détail)
-- `test/widgets/catalog_screen_test.dart` → affichage et filtrage du catalogue, navigation vers panier/favoris
-- `test/widgets/profile_screen_test.dart` → mise à jour du profil et feedback SnackBar
-- `test/error_handling_test.dart` → simulation d’erreurs réseau et vérification du feedback UI
-
-# Erreurs
-- `error_handling_test.dart` → (simulateur d’erreurs Firebase + réseau)
-
-Exécution des tests :
+### Lancer les tests :
 ```bash
 flutter test
 ```
 
+---
 
-![Flutter CI](https://github.com/CodeOfWrath/e_commerce/actions/workflows/flutter_ci.yml/badge.svg)
+## 🛠️ Installation & Configuration
 
+### Prérequis :
+- Flutter SDK (v3.10+)
+- Dart SDK (v3.0+)
 
-## 🛠️ Installation
+### Étapes :
+1. Cloner le dépôt :
+   ```bash
+   git clone <URL_DU_REPO_GITHUB>
+   cd e_commerce
+   ```
+2. Installer les dépendances :
+   ```bash
+   flutter pub get
+   ```
+3. Lancer l'application :
+   ```bash
+   flutter run
+   ```
 
-```bash
-# Cloner le repo
-git clone https://github.com/CodeOfWrath/e_commerce.git
-cd e_commerce
-
-# Installer les dépendances
-flutter pub get
-
-# Lancer l’application
-flutter run
+### Identifiants de test pour la connexion JWT :
+- **Utilisateur 1** : Username `emilys` / Password `emilyspass`
+- **Utilisateur 2** : Username `kminchelle` / Password `0x8r5e`

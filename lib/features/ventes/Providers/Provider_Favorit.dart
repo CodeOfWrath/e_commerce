@@ -1,22 +1,21 @@
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class FavoritesNotifier extends StateNotifier<Set<String>> {
-  FavoritesNotifier() : super({}) {
-    // On lance le chargement mais on ne peut pas await dans un constructeur
-    _init();
+class FavoritesNotifier extends Notifier<Set<String>> {
+  @override
+  Set<String> build() {
+    loadFavorites();
+    return {};
   }
 
-  Future<void> _init() async {
-    await _loadFavorites();
-  }
-
-  Future<void> _loadFavorites() async {
-    final prefs = await SharedPreferences.getInstance();
-    final saved = prefs.getStringList('favorites');
-    if (saved != null) {
-      state = saved.toSet();
-    }
+  Future<void> loadFavorites() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final saved = prefs.getStringList('favorites');
+      if (saved != null) {
+        state = saved.toSet();
+      }
+    } catch (_) {}
   }
 
   Future<void> toggleFavorite(String productId) async {
@@ -28,18 +27,21 @@ class FavoritesNotifier extends StateNotifier<Set<String>> {
     }
     state = newState;
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('favorites', state.toList());
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList('favorites', state.toList());
+    } catch (_) {}
   }
 
   Future<void> clearFavorites() async {
     state = {};
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('favorites');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('favorites');
+    } catch (_) {}
   }
 }
 
-final favoritesProvider =
-StateNotifierProvider<FavoritesNotifier, Set<String>>((ref) {
-  return FavoritesNotifier();
-});
+final favoritesProvider = NotifierProvider<FavoritesNotifier, Set<String>>(
+  FavoritesNotifier.new,
+);

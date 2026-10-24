@@ -1,8 +1,9 @@
-import 'package:flutter_riverpod/legacy.dart';
-import '../data/Models/Produit.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../domain/entities/product_entity.dart';
 
-class CartNotifier extends StateNotifier<Map<Product, int>> {
-  CartNotifier() : super({});
+class CartNotifier extends Notifier<Map<Product, int>> {
+  @override
+  Map<Product, int> build() => {};
 
   void add(Product product) {
     state = {
@@ -17,21 +18,29 @@ class CartNotifier extends StateNotifier<Map<Product, int>> {
     if (qty > 1) {
       state = {...state, product: qty - 1};
     } else {
-      final newState = {...state}..remove(product);
+      final newState = Map<Product, int>.from(state)..remove(product);
       state = newState;
     }
   }
 
   void removeProduct(Product product) {
-    final newState = {...state}..remove(product);
+    final newState = Map<Product, int>.from(state)..remove(product);
     state = newState;
   }
 
   void clearCart() {
     state = {};
   }
+
+  double get totalPrice {
+    double total = 0.0;
+    state.forEach((product, quantity) {
+      total += product.price * quantity;
+    });
+    return total;
+  }
 }
 
-final cartProvider = StateNotifierProvider<CartNotifier, Map<Product, int>>(
-      (ref) => CartNotifier(),
+final cartProvider = NotifierProvider<CartNotifier, Map<Product, int>>(
+  CartNotifier.new,
 );

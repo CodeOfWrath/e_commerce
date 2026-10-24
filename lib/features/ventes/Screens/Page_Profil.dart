@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../Providers/Provider_User.dart';
+import '../../../core/utils/providers.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -18,10 +18,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    final user = ref.read(userProvider);
-    _nameController = TextEditingController(text: user.name);
-    _emailController = TextEditingController(text: user.email);
-    _cityController = TextEditingController(text: user.city);
+    final userProfile = ref.read(userProvider);
+    _nameController = TextEditingController(text: userProfile.name);
+    _emailController = TextEditingController(text: userProfile.email);
+    _cityController = TextEditingController(text: userProfile.city);
   }
 
   @override
@@ -36,13 +36,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     setState(() => _loading = true);
     final notifier = ref.read(userProvider.notifier);
 
-    notifier.updateName(_nameController.text);
-    notifier.updateEmail(_emailController.text);
-    notifier.updateCity(_cityController.text);
+    await notifier.updateName(_nameController.text);
+    await notifier.updateEmail(_emailController.text);
+    await notifier.updateCity(_cityController.text);
 
-    await Future.delayed(const Duration(milliseconds: 500));
+    if (!mounted) return;
     setState(() => _loading = false);
-
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Profil mis à jour')),
     );
@@ -50,46 +49,128 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(userProvider);
+    final userProfile = ref.watch(userProvider);
+    final authState = ref.watch(authControllerProvider);
+    final authUser = authState.user;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Profil utilisateur')),
-      body: Padding(
+      appBar: AppBar(
+        title: const Text('Profil utilisateur'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Déconnexion',
+            onPressed: () async {
+              final navigator = Navigator.of(context);
+              await ref.read(authControllerProvider.notifier).logout();
+              if (!mounted) return;
+              navigator.pushNamedAndRemoveUntil('/', (route) => false);
+            },
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 40,
-              child: Icon(Icons.person, size: 40),
+              backgroundColor: Theme.of(context).primaryColor,
+              child: authUser?.image != null && authUser!.image.startsWith('http')
+                  ? ClipOval(
+                      child: Image.network(
+                        authUser.image,
+                        width: 80,
+                        height: 80,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.person, size: 40, color: Colors.white),
+                      ),
+                    )
+                  : const Icon(Icons.person, size: 40, color: Colors.white),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 12),
 
+            if (authUser != null) ...[
+              Text(
+                authUser.fullName,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                authUser.email,
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              const SizedBox(height: 8),
+              const Chip(
+                avatar: Icon(Icons.verified, size: 16, color: Colors.green),
+                label: Text('Session JWT REST API active'),
+              ),
+            ],
+
+            const SizedBox(height: 20),
             TextField(
               controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Nom'),
+              decoration: const InputDecoration(
+                labelText: 'Nom',
+                prefixIcon: Icon(Icons.person_outline),
+              ),
             ),
+            const SizedBox(height: 12),
             TextField(
               controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(
+                labelText: 'Email',
+                prefixIcon: Icon(Icons.email_outlined),
+              ),
             ),
+            const SizedBox(height: 12),
             TextField(
               controller: _cityController,
-              decoration: const InputDecoration(labelText: 'Ville'),
+              decoration: const InputDecoration(
+                labelText: 'Ville',
+                prefixIcon: Icon(Icons.location_city),
+              ),
             ),
 
             const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _loading ? null : _saveProfile,
-              child: _loading
-                  ? const CircularProgressIndicator()
-                  : const Text('Enregistrer'),
+            SizedBox(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: _loading ? null : _saveProfile,
+                child: _loading
+                    ? const CircularProgressIndicator()
+                    : const Text('Enregistrer'),
+              ),
             ),
 
             const SizedBox(height: 30),
-            // ✅ Affichage des infos mises à jour
-            Text('Nom actuel: ${user.name}'),
-            Text('Email actuel: ${user.email}'),
-            Text('Ville actuelle: ${user.city}'),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Informations actuelles:', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Text('Nom actuel: ${userProfile.name}'),
+                    Text('Email actuel: ${userProfile.email}'),
+                    Text('Ville actuel: ${userProfile.city}'),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextButton.icon(
+              icon: const Icon(Icons.power_settings_new, color: Colors.red),
+              label: const Text('Se déconnecter', style: TextStyle(color: Colors.red)),
+              onPressed: () async {
+                final navigator = Navigator.of(context);
+                await ref.read(authControllerProvider.notifier).logout();
+                if (!mounted) return;
+                navigator.pushNamedAndRemoveUntil('/', (route) => false);
+              },
+            ),
           ],
         ),
       ),
