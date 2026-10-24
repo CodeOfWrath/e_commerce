@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  final product = Product(
+  const product = Product(
     id: '1',
     name: 'T-shirt',
     price: 19.99,

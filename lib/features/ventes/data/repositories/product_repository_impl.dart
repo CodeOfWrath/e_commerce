@@ -42,12 +42,12 @@ class ProductRepositoryImpl implements ProductRepository {
       if (cachedProducts.isNotEmpty) {
         return cachedProducts;
       } else {
-        throw CacheFailure('Aucune donnée en cache disponible');
+        throw const CacheFailure('Aucune donnée en cache disponible');
       }
     } on CacheException catch (e) {
       throw CacheFailure(e.message);
     } catch (_) {
-      throw CacheFailure('Aucune donnée en cache disponible');
+      throw const CacheFailure('Aucune donnée en cache disponible');
     }
   }
 
